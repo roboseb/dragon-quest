@@ -1,6 +1,12 @@
 import shortsville from "../images/shortsville.png";
+import key from "../images/key.png";
+
+import {useState, useEffect} from 'react';
 
 const SearchImage = () => {
+
+    const [bValue, setBValue] = useState(null);
+
 
     function magnify(imgID, zoom) {
         let img, glass, w, h, bw;
@@ -39,18 +45,18 @@ const SearchImage = () => {
             pos = getCursorPos(e);
             x = pos.x;
             y = pos.y;
-            // /* Prevent the magnifier glass from being positioned outside the image: */
-            // if (x > img.width - (w / zoom)) { x = img.width - (w / zoom); }
-            // if (x < w / zoom) { x = w / zoom; }
-            // if (y > img.height - (h / zoom)) { y = img.height - (h / zoom); }
-            // if (y < h / zoom) { y = h / zoom; }
-            // /* Set the position of the magnifier glass: */
-            // glass.style.left = (x - w) + "px";
-            // glass.style.top = (y - h) + "px";
-            // /* Display what the magnifier glass "sees": */
-            // glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw) + "px -" + ((y * zoom) - h + bw) + "px";
+            /* Prevent the magnifier glass from being positioned outside the image: */
+            if (x > img.width - (w / zoom)) { x = img.width - (w / zoom); }
+            if (x < w / zoom) { x = w / zoom; }
+            if (y > img.height - (h / zoom)) { y = img.height - (h / zoom); }
+            if (y < h / zoom) { y = h / zoom; }
+            /* Set the position of the magnifier glass: */
+            glass.style.left = (x - w) + "px";
+            glass.style.top = (y - h) + "px";
+            /* Display what the magnifier glass "sees": */
+            glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw) + "px -" + ((y * zoom) - h + bw) + "px";
 
-            updateSquare(x, y)
+            updateSquare(x, y);
         }
 
         function getCursorPos(e) {
@@ -70,14 +76,27 @@ const SearchImage = () => {
 
     let ctx;
 
-
+    //Update test panel with info from image key.
     const updateSquare = (posX, posY) => {
+
+        //Set original and computed reference dimensions.
+        const refC = document.getElementById("mycanvas");
+        const refImg = document.getElementById('magnifiedimg');
+
+        //Set factors to multiply X and Y positions by.
+        const xFactor = refC.width/refImg.width;
+        const yFactor = refC.height/refImg.height;
+
+        //Scale X and Y positions to match original key.
+        const newX = posX * xFactor;
+        const newY = posY * yFactor;
+
         const {
             data
-        } = ctx.getImageData(posX, posY, 1, 1);
-        // console.log(data)
-        console.log(posX, posY);
-        // console.log(myImg.Height);
+        } = ctx.getImageData(newX, newY, 1, 1);
+
+
+        setBValue(Math.round(data[2] / 255 * 100));
 
         const testSquare = document.getElementById('testsquare');
         testSquare.style.backgroundColor = `rgba(${data[0]},${data[1]},${data[2]},${data[3]})`;
@@ -86,11 +105,22 @@ const SearchImage = () => {
     window.onload = function() {
         const c = document.getElementById("mycanvas");
         ctx = c.getContext("2d");
- 
-        const img = document.getElementById('magnifiedimg');
+        
+        const img = document.getElementById('key');
         c.width = img.width;
         c.height = img.height;
-        ctx.drawImage(img, 0, 0);
+
+        console.log(img.height, img.width);
+
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+
+        //Toggle magnifier visibility on right click.
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const magnifier = document.querySelector('.img-magnifier-glass');
+            magnifier.classList.toggle('hiddenmagnifier');
+        });
+
     }
 
     
@@ -99,8 +129,6 @@ const SearchImage = () => {
 
     return (
         <div id='searchimgbox'>
-            
-            <img id='searchimg' src={shortsville} alt="how are you doing an image hunt if you can't see?"></img>
 
             <div id="magnifiedimgbox">
                 <img 
@@ -109,10 +137,15 @@ const SearchImage = () => {
                     alt=""
                     onLoad={() => magnify('magnifiedimg', 3)}    
                 ></img>
+                <canvas id='mycanvas'></canvas>
             </div>
+            <img id='key' src={key} alt=""></img>
 
-            <div id='testsquare'>Test Square</div>
-            <canvas id='mycanvas'></canvas>
+            <div id='testsquare'>
+                Test Square
+                <div>{bValue}</div>    
+            </div>
+            
             
             
 
