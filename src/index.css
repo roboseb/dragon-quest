@@ -1,3 +1,7 @@
+:root {
+    --imgwidth: 0px;
+}
+
 body {
   margin: 0;
 }
@@ -14,6 +18,7 @@ body {
     top: 0;
     left: 0;
     position: absolute;
+
 }
 
 #magnifiedimg {
@@ -64,12 +69,14 @@ img {
     top: 0;
     right: 0;
     font-size: 2rem;
+
+    display: none;
 }
 
 
 #key {
     position: absolute;
-    display: block;
+    display: none;
     pointer-events: none;
 
 }
@@ -80,7 +87,7 @@ img {
     pointer-events: none;
     z-index: 3;
     position: initial;
-    display: block;
+    display: none;
 
     height: 100vh;
 
@@ -90,5 +97,188 @@ img {
     image-rendering: crisp-edges;
 
     background-color: teal;
+}
+
+#founditemsbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--imgwidth);
+    background-color: transparent;
+
+    pointer-events: none;
+}
+
+.countbox {
+    position: absolute;
+    font-size: 0.8rem;
+    bottom: 29px;
+    pointer-events: all;
+    transition: all 0.4s;
+
+    filter: drop-shadow(0px 0px 0px black);
+}
+
+.countbox:hover {
+    transform: scale(150%, 150%);
+    z-index: 2;
+    filter: contrast(110%) brightness(115%) drop-shadow(0px 5px 5px black);
+}
+
+.countbox>img {
+    height: 95px;
+    pointer-events: none;
+    color: rgb(44, 44, 44);
+    
+}
+
+.countbox>div {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    text-align: center;
+}
+
+#snailscount {
+    left: 310px;
+}
+
+#conescount {
+    left: 434px;
+}
+
+#bucketscount {
+    left: 559px;
+}
+
+#judgescount {
+    left: 663px;
+}
+
+#yabscount {
+    left: 785px;
+}
+
+#puppetscount {
+    left: 911px;
+}
+
+#glovescount {
+    left: 1035px;
+}
+
+
+.scrollcount {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.scrollcount>img {
+    box-sizing: border-box;
+    transform: scale(45%);
+    transition: all 0.3s;
+    filter: drop-shadow(0px 0px 0px black);
+    pointer-events: all;
+}
+
+.scrollcount>img:hover {
+    transform: scale(75%);
+    z-index: 1;
+    filter: contrast(110%) brightness(115%) drop-shadow(0px 5px 5px black);
+}
+
+.scrollcount>div {
+    position: absolute;
+    pointer-events: none;
+    color: rgba(0, 0, 0, 0);
+    transition: all 0.3s;
+
+}
+
+.scrollcount>div.countsvisible {
+    transform: translateY(-140px);
+    font-size: 3rem;
+    color: black;
+
+
+}
+
+#spragcount {
+    top: 261px;
+    left: -6px;
+}
+
+#digcount {
+    top: 329px;
+    left: 126px;
+}
+
+#pugcount {
+    top: 410px;
+    left: -25px;
+}
+
+#bookcount {
+    top: 503px;
+    left: 102px;
+}
+
+#shieldscount {
+    top: 610px;
+    left: 25px;
+}
+
+#swordscount {
+    top: 584px;
+    left: 92px;
+}
+
+#axescount {
+    top: 733px;
+    left: -17px;
+}
+
+#milkcount {
+    top: 702px;
+    left: 146px;
+}
+
+#tartscount {
+    top: 767px;
+    left: 184px;
+}
+
+#burgerscount {
+    top: 800px;
+    left: 128px;
+}
+
+.itemfound1 {
+    animation: itemfound2 1s;
+}
+
+@keyframes itemfound1 {
+    0% {transform: scale(100%, 100%); filter: contrast(100%) brightness(100%) drop-shadow(0px 0px 0px black);}
+    30% {transform: scale(150%, 150%); filter: contrast(110%) brightness(115%) drop-shadow(0px 5px 5px black);}
+    100% {transform: scale(100%, 100%); filter: contrast(100%) brightness(100%) drop-shadow(0px 0px 0px black);}
+}
+
+.itemfound2 {
+    animation: itemfound2 1s;
+}
+
+@keyframes itemfound2 {
+    0% {transform: scale(100%, 100%); filter: contrast(100%) brightness(100%) drop-shadow(0px 0px 0px black);}
+    30% {transform: scale(150%, 150%); filter: contrast(110%) brightness(115%) drop-shadow(0px 5px 5px black);}
+    100% {transform: scale(100%, 100%); filter: contrast(100%) brightness(100%) drop-shadow(0px 0px 0px black);}
 }
 

@@ -28,6 +28,14 @@ July 4th, 2022
 
     TOP says to incorporate this key check functionality into the back end, but I have a feeling that it will be a nightmare after all this, so I may skip that. 
 
+July 5th, 2022
+
+    Laptop keyboard is acting up. It was buggy before, so I switched to an external one, but now it's just spamming arrow keys. At least I have Vs. Sayu Vaporwave Mix.
+
+    All the complex functionality got finished yesterday. Today, I just need to track what items the player have has actually found. Might spend the time splitting the key into layers so that I can mark them that way, cause it would look super cool and be useful when looking for stuff.
+
+    A lot of work done in gimp today. But at least I got the look I was looking for. Basically, at a glance, the page should more or less look like the original scan of the book. But when you start interacting with things, you'' immediatly see all the little interations and animations that are there. And that the item counts at the bottom are dynamic. But when you go back to hunting, it all resets to look just like the scan. 
+
 
 ---To-Do---
 
@@ -38,3 +46,8 @@ July 4th, 2022
 -Add effects
 -Add info
 -Ability to change magnifier size or toggle it
+-Mark found items.
+-fix top left snail
+-fix waiting for image load
+-speed up slow item count update
+-option for square magnifier
