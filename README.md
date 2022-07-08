@@ -36,18 +36,42 @@ July 5th, 2022
 
     A lot of work done in gimp today. But at least I got the look I was looking for. Basically, at a glance, the page should more or less look like the original scan of the book. But when you start interacting with things, you'' immediatly see all the little interations and animations that are there. And that the item counts at the bottom are dynamic. But when you go back to hunting, it all resets to look just like the scan. 
 
+July 6th, 2022
+
+    Spent this afternoon hand splitting and exporting and naming all the individual item mask keys, so that I could use them to show that items have been clicked. Very tedious work, but the code was super easy to implement after that. Only problem is, after I started messing around with it a bit I noticed that the site would basically crash after about a dozen items clicked, which is a problem, as the goal is to find about 100 items. If I had to hazard a guess, I would say the culprit is the massive pixel density of these images, as they are over 1080p and render the entire image despite the technically smaller size of the content itself. I may be able to simply crank down the resolution with CSS, we'll see.
+
+July 7th, 2022
+
+    Yesterday I restarted my laptop without shutting down my VM, and that realization scared the shit out of me. All is well though, everything got saved. 
+
+    Also yesterday, I came up with the idea of using a canvas to draw my individual found item keys on, so that I could essentially render them as one image instead of stacking a hundred elements. Not sure yet if that's how canvas works, and I'm also running into some other issues, but we'll see what I can get done.
+
+    I feel like I understand the canvas element even less than react useState. Good thing I have a chance to practice both here. Got the item key highlighting working pretty well. Still got a decent amount of work to do.
+
+    It really is an incredible feeling. Brute forcing your way through a math problem until the answer shows itself. Makes you feel big.
+
 
 ---To-Do---
 
 -Add firebase colour check
 -Add leaderboard
--Add item get message
+DONE-Add item get message
 -Add all items get message
--Add effects
--Add info
--Ability to change magnifier size or toggle it
--Mark found items.
+DONE-Add effects
+DONE-Add info
+DONE-Ability to change magnifier size or toggle it
+DONE-Mark found items.
 -fix top left snail
 -fix waiting for image load
--speed up slow item count update
--option for square magnifier
+DONE-speed up slow item count update
+DONE-option for square magnifier
+-update title and favicon
+DONE-timer
+DONE-checked items opacity options
+-fix magnifier
+-adventure game mode where cursor changes if over an items
+DONE-Add key logic
+-animate menu open/close
+-custom font
+-finalize styling
+-center layout

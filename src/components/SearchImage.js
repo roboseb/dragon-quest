@@ -1,5 +1,7 @@
 import shortsville from "../images/shortsvilleblank.png";
 import key from "../images/key.png";
+import landscape from "../images/landscape.png";
+import blankscroll from "../images/blankscroll.png";
 
 import {useState, useEffect} from 'react';
 import FoundItems from "./FoundItems";
@@ -7,6 +9,17 @@ import FoundItems from "./FoundItems";
 const SearchImage = () => {
 
     const [bValue, setBValue] = useState(null);
+    const [foundKeyContext, setFoundKeyContext] = useState(null);
+
+    const [widthSet, setWidthSet] = useState(false);
+
+    const [timer, setTimer] = useState([0, 0, 0]);
+    const [timerDisplay, setTimerDisplay] = useState(['00', '00', '00']);
+    const [counter, setCounter] = useState(0);
+
+    const [highlightOpacity, setHighlightOpacity] = useState(60);
+    const [magSize, setMagSize] = useState(200);
+
 
     const [itemArray, setItemArray] = useState([
         'sprag',
@@ -97,7 +110,13 @@ const SearchImage = () => {
             glass.style.left = (x - w) + "px";
             glass.style.top = (y - h) + "px";
             /* Display what the magnifier glass "sees": */
-            glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw) + "px -" + ((y * zoom) - h + bw) + "px";
+
+            let size = glass.offsetWidth;
+
+            let extraSize = size - 206;
+
+            console.log(extraSize);
+            glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw - extraSize/2) + "px -" + ((y * zoom) - h + bw  - extraSize/2) + "px";
 
             updateSquare(x, y);
         }
@@ -117,7 +136,7 @@ const SearchImage = () => {
         }
     }
 
-    let ctx;
+    let mainKeyContext;
 
     //Update test panel with info from image key.
     const updateSquare = (posX, posY) => {
@@ -136,7 +155,7 @@ const SearchImage = () => {
 
         const {
             data
-        } = ctx.getImageData(newX, newY, 1, 1);
+        } = mainKeyContext.getImageData(newX, newY, 1, 1);
 
 
         setBValue(Math.round(data[2] / 255 * 100));
@@ -147,44 +166,56 @@ const SearchImage = () => {
 
     window.onload = function() {
         const c = document.getElementById("mycanvas");
-        ctx = c.getContext("2d");
+        mainKeyContext = c.getContext("2d");
         
         const img = document.getElementById('key');
         c.width = img.width;
         c.height = img.height;
 
-        ctx.drawImage(img, 0, 0, img.width, img.height);
+        mainKeyContext.drawImage(img, 0, 0, img.width, img.height);
 
         //Toggle magnifier visibility on right click.
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            const magnifier = document.querySelector('.img-magnifier-glass');
-            magnifier.classList.toggle('hiddenmagnifier');
+            toggleMagnifier();
         });
+
         //Set container sizes to image width.
         setRefWidth();
+
+        //Set up context for drawing individual keys.
+        const canvas = document.getElementById('keybox');
+        setFoundKeyContext(canvas.getContext("2d"));
+
+        //Start the timer.
+        timerCycle();
     }
 
     //Check to update found items.
     const updateItems = () => {
 
+        const tempB = bValue;
+        setBValue(0);
 
         //Do nothing if not clicking on an item.
-        if (bValue - 1 < 0 || bValue - 1 > 99) return;
-
+        if (tempB - 1 < 0 || tempB - 1 > 99) return;
 
         //If it has not yet been found, update items and itemArray.
-        if (itemArray[bValue - 1] !== 'found') {
+        if (itemArray[tempB - 1] !== 'found') {
             
-            animateFoundItem(itemArray[bValue - 1]);
+
+            //Add the highlighted key for the found item.
+            addKey(tempB);
+            
+            animateFoundItem(itemArray[tempB - 1]);
 
             const tempItems = items;
-            tempItems[itemArray[bValue - 1]].found += 1;
+            tempItems[itemArray[tempB - 1]].found += 1;
 
             setItems(tempItems);
 
             const tempArray = itemArray;
-            tempArray[bValue - 1] = 'found';
+            tempArray[tempB - 1] = 'found';
 
             setItemArray(tempArray);
         }
@@ -202,8 +233,6 @@ const SearchImage = () => {
             className = 'itemfound1';
         }
 
-        console.log(className);
-
         domItem.classList.remove('itemfound1', 'itemfound2');
         void domItem.offsetWidth;
         domItem.classList.add(className);    
@@ -217,8 +246,178 @@ const SearchImage = () => {
         root.style.setProperty('--imgwidth', magImg.width + 'px');
     }
 
+
+    //Add singular found item key to show clicked items. 
+    const addKey = (index) => {
+
+        const c = document.getElementById("keybox");
+        
+        const img = new Image();
+        img.src = require(`../images/keypieces/newkeys/${index}.png`);
+
+
+        img.onload = () => {
+
+            //Set canvas width based on image width if not yet set.
+            if (widthSet === false) {
+                c.width = img.width;
+                c.height = img.height;
+
+                setWidthSet(true);
+            }
+
+            //Add the key to the displayed canvas.
+            foundKeyContext.drawImage(img, 0, 0, img.width, img.height);
+        }
+    }
+
+    //Toggle elements of the landscape/menu button.
+    const toggleLsFocus = () => {
+        const lsImage = document.getElementById('lsimg');
+        lsImage.classList.toggle('focused');
+
+        const lsText = document.getElementById('lstext');
+        lsText.classList.toggle('focused');
+    }
+
+    //Toggle visibility of the menu.
+    const toggleMenu = () => {
+        const menu = document.getElementById('menu');
+        menu.classList.toggle('visible');
+    }
+
+    //Run the timer.
+    const timerCycle = () => {
+
+        let tempTimer = timer;
+        tempTimer[2] += 1;
+
+        //Condense sets of 60 seconds or minutes into minutes or hours.
+        if (tempTimer[2] >= 60) {
+            tempTimer[2] = 0;
+            tempTimer[1] += 1;
+        }
+
+        if (tempTimer[1] >= 60) {
+            tempTimer[1] = 0;
+            tempTimer[0] += 1;
+        }
+
+        setTimer(tempTimer);
+
+        let tempTimerDisplay = timerDisplay;
+
+        //Add leading zero to single digit time counts.
+        if (tempTimer[2] < 10 || tempTimer[2] === 0) {
+            tempTimerDisplay[2] = '0' + tempTimer[2];
+        } else {
+            tempTimerDisplay[2] = tempTimer[2];
+        }
+
+        if (tempTimer[1] < 10 || tempTimer[1] === 0) {
+            tempTimerDisplay[1] = '0' + tempTimer[1];
+        } else {
+            tempTimerDisplay[1] = tempTimer[1];
+        }
+
+        if (tempTimer[0] < 10 || tempTimer[0] === 0) {
+            tempTimerDisplay[0] = '0' + tempTimer[0];
+        } else {
+            tempTimerDisplay[0] = tempTimer[0];
+        }
+
+        setTimerDisplay(tempTimerDisplay);
+
+        //Force update on timer element.
+        setCounter(counter => counter + 1);
+
+        setTimeout(timerCycle, 1000);
+    }
+
+    const toggleHighlight = () => {
+        const highlight = document.getElementById('keybox');
+        highlight.classList.toggle('hidden');
+    }
+
+    //Increase opacity on clicked item highlights.
+    const increaseHighlight = () => {
+        let tempOpacity = highlightOpacity;
+        tempOpacity += 10;
+
+        //Clamp opacity to be between 0 an 100;
+        if (tempOpacity < 0) tempOpacity = 0;
+        if (tempOpacity > 100) tempOpacity = 100;
+
+        const root = document.querySelector(':root');
+        root.style.setProperty('--highlight-opacity', tempOpacity + '%');
+
+        setHighlightOpacity(tempOpacity);
+    }
+
+    //Decrease opaity on clicked item highlights.
+    const decreaseHighlight = () => {
+        let tempOpacity = highlightOpacity;
+        tempOpacity -= 10;
+
+        const root = document.querySelector(':root');
+        root.style.setProperty('--highlight-opacity', tempOpacity + '%');
+
+        setHighlightOpacity(tempOpacity);
+    }
+
+    //Toggle magnifiying glass on or off.
+    const toggleMagnifier = () => {
+        const magnifier = document.querySelector('.img-magnifier-glass');
+        magnifier.classList.toggle('hiddenmagnifier');
+    }
+
+    //Set magnifying glass shape to circle.
+    const setMagToCircle = () => {
+        const glass = document.querySelector('.img-magnifier-glass');
+        glass.style.borderRadius = null;
+    }
+
+    //Set magnifying glass shape to square.
+    const setMagToSquare = () => {
+        const glass = document.querySelector('.img-magnifier-glass');
+        glass.style.borderRadius = '0%';
+    }
+
+    //Increase size of the magnifying glass.
+    const increaseMagSize = () => {
+        let tempSize = magSize;
+        tempSize += 50;
+
+        //Limit magnifier size to 1000px;
+        if (tempSize > 1000) {
+            tempSize = 1000;
+        }
+
+        const root = document.querySelector(':root');
+        root.style.setProperty('--magsize', tempSize + 'px');
+
+        setMagSize(tempSize);
+    }
+
+    //Decrease size of the magnifying glass.
+    const decreaseMagSize = () => {
+        let tempSize = magSize;
+        tempSize -= 50;
+
+        //Ensure magnifier is at least 200px;
+        if (tempSize < 200) {
+            tempSize = 200;
+        }
+
+        const root = document.querySelector(':root');
+        root.style.setProperty('--magsize', tempSize + 'px');
+
+        setMagSize(tempSize);
+    }
+
     return (
         <div id='searchimgbox'>
+            <canvas id='keybox'></canvas>
 
             <div id="magnifiedimgbox" onClick={updateItems}>
                 
@@ -240,7 +439,76 @@ const SearchImage = () => {
             <FoundItems
                 items={items}
             />
+
+
+            <div id='menu'>
+                <img id="blankscroll" src={blankscroll} alt=""></img>
+
+
+                <div id="description">
+                    This image is from a book called "Dragon Quest"
+                    that I read as a kid. It's vastly more compelling
+                    than Where's Waldo or any similar books, and so I
+                    chose to convert it into this digital form. Below
+                    are several options to enhance your experience.
+                </div>
+
+                <div id='timebox'>
+                    <div id='currenttime'>{}{timerDisplay[0]}:{timerDisplay[1]}:{timerDisplay[2]}</div>
+                    <button id='leaderboardsbtn'>Open Leaderboard</button>
+                </div>
+
+                <div id='clickedbox'>
+                    <div id='clickedonoff'>
+                        Highlight found items 
+                        <div>
+                            <span 
+                                id='highlighttoggle'
+                                className='option'
+                                onClick={toggleHighlight}
+                            >Toggle</span>
+                        </div>
+
+                    </div>
+                    <div id='clickedopacity'>
+                        Found item opacity
+                        <div>
+                            <span className='option' onClick={decreaseHighlight}> Down</span>
+                            <span className='option' onClick={increaseHighlight}> Up</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id='magbox'>
+                    <div id='magonff'>
+                        Magnifier
+                        <div className='option' onClick={toggleMagnifier}>Toggle<span>(right click)</span></div>
+                    </div>
+                    <div id='magshape'>
+                        Magnifier shape
+                        <span className='option' onClick={setMagToCircle}> Circle</span>
+                        <span className='option' onClick={setMagToSquare}> Square</span>
+                    </div>
+                    <div id='magsize'>
+                        Magnifier Size
+                        <span className='option' onClick={decreaseMagSize}> Down</span>
+                        <span className='option' onClick={increaseMagSize}> Up</span>
+                    </div>
+                </div>
+            </div>
             
+            <div 
+                id='landscape'
+                onMouseEnter={toggleLsFocus}
+                onMouseLeave={toggleLsFocus}
+                onClick={toggleMenu}
+            >
+                <img id="lsimg" src={landscape} alt=""></img>
+                <div id="lstext">
+                    <div>Show UI</div>
+                </div>
+            </div>
             
             
 
