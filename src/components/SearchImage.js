@@ -6,6 +6,27 @@ import blankscroll from "../images/blankscroll.png";
 import {useState, useEffect} from 'react';
 import FoundItems from "./FoundItems";
 
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc } from "firebase/firestore"; 
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDS-E029FsBskE3NfT39CFstbq9yQHeczU",
+    authDomain: "dragon-quest-68f66.firebaseapp.com",
+    projectId: "dragon-quest-68f66",
+    storageBucket: "dragon-quest-68f66.appspot.com",
+    messagingSenderId: "17256418710",
+    appId: "1:17256418710:web:34c074b05338123b19a1b7"
+};
+
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+
+
 const SearchImage = () => {
 
     const [bValue, setBValue] = useState(null);
@@ -19,6 +40,9 @@ const SearchImage = () => {
 
     const [highlightOpacity, setHighlightOpacity] = useState(60);
     const [magSize, setMagSize] = useState(200);
+
+    const [foundAmount, setFoundAmount] = useState(0);
+    const [lastTime, setLastTime] = useState(null);
 
 
     const [itemArray, setItemArray] = useState([
@@ -101,6 +125,10 @@ const SearchImage = () => {
             pos = getCursorPos(e);
             x = pos.x;
             y = pos.y;
+
+            //Check for an items at the mouse position.
+            updateSquare(x, y);
+
             /* Prevent the magnifier glass from being positioned outside the image: */
             if (x > img.width - (w / zoom)) { x = img.width - (w / zoom); }
             if (x < w / zoom) { x = w / zoom; }
@@ -115,10 +143,9 @@ const SearchImage = () => {
 
             let extraSize = size - 206;
 
-            console.log(extraSize);
             glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw - extraSize/2) + "px -" + ((y * zoom) - h + bw  - extraSize/2) + "px";
 
-            updateSquare(x, y);
+            
         }
 
         function getCursorPos(e) {
@@ -189,6 +216,30 @@ const SearchImage = () => {
 
         //Start the timer.
         timerCycle();
+
+        async function firebaseTest()  {
+            try {
+                const docRef = await addDoc(collection(db, "users"), {
+                    first: "Cum",
+                    last: "Sock",
+                    born: 1815
+                });
+                console.log("Document written with ID: ", docRef.id);
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.data());
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        //firebaseTest();
     }
 
     //Check to update found items.
@@ -202,12 +253,21 @@ const SearchImage = () => {
 
         //If it has not yet been found, update items and itemArray.
         if (itemArray[tempB - 1] !== 'found') {
+
+            //Show an alert if the key has been found.
+            if (tempB === 100) {
+                alert('You got the key! Congrats!');
+            }
             
 
             //Add the highlighted key for the found item.
             addKey(tempB);
             
-            animateFoundItem(itemArray[tempB - 1]);
+            //Animate all found items except for the key (100).
+            if (tempB !== 100) {
+                animateFoundItem(itemArray[tempB - 1]);
+            }
+            
 
             const tempItems = items;
             tempItems[itemArray[tempB - 1]].found += 1;
@@ -217,7 +277,12 @@ const SearchImage = () => {
             const tempArray = itemArray;
             tempArray[tempB - 1] = 'found';
 
+            //Update various variables.
             setItemArray(tempArray);
+            setFoundAmount(foundAmount => foundAmount + 1);
+
+            setLastTime(timer);
+            console.log(lastTime);
         }
     }
 
@@ -415,6 +480,17 @@ const SearchImage = () => {
         setMagSize(tempSize);
     }
 
+    const toggleUnderline = (e) => {
+        e.target.classList.toggle('underlined');
+    }
+
+    //Create an alert for the player if they've found everything.
+    useEffect(() => {
+        if (foundAmount > 950      ) {
+            alert('Congrats! You found everything, and I recommend you upload your score to the leaderboard!');
+        }
+    }, [foundAmount]);
+
     return (
         <div id='searchimgbox'>
             <canvas id='keybox'></canvas>
@@ -454,46 +530,56 @@ const SearchImage = () => {
                 </div>
 
                 <div id='timebox'>
+                    <div id='score'>{foundAmount}/100</div>
                     <div id='currenttime'>{}{timerDisplay[0]}:{timerDisplay[1]}:{timerDisplay[2]}</div>
-                    <button id='leaderboardsbtn'>Open Leaderboard</button>
+                    <button id='leaderboardsbtn'>{">:"}Open Leaderboard{":<"}</button>
                 </div>
 
                 <div id='clickedbox'>
                     <div id='clickedonoff'>
-                        Highlight found items 
+                        Highlight Found 
                         <div>
-                            <span 
+                            <div 
                                 id='highlighttoggle'
                                 className='option'
                                 onClick={toggleHighlight}
-                            >Toggle</span>
+                                onMouseEnter={toggleUnderline}
+                                onMouseLeave={toggleUnderline}
+                            >Toggle</div>
                         </div>
 
                     </div>
                     <div id='clickedopacity'>
-                        Found item opacity
+                        Found Opacity
                         <div>
-                            <span className='option' onClick={decreaseHighlight}> Down</span>
-                            <span className='option' onClick={increaseHighlight}> Up</span>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline} className='option' onClick={decreaseHighlight}> Down</div>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline}  className='option' onClick={increaseHighlight}> Up</div>
                         </div>
 
                     </div>
                 </div>
 
                 <div id='magbox'>
-                    <div id='magonff'>
+                    <div id='magonoff'>
                         Magnifier
-                        <div className='option' onClick={toggleMagnifier}>Toggle<span>(right click)</span></div>
-                    </div>
+                        <div>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline} className='option' onClick={toggleMagnifier}>Toggle (right click)</div>
+                        </div>
+                        </div>
+                        
                     <div id='magshape'>
-                        Magnifier shape
-                        <span className='option' onClick={setMagToCircle}> Circle</span>
-                        <span className='option' onClick={setMagToSquare}> Square</span>
+                        Magnifier Shape
+                        <div>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline} className='option' onClick={setMagToCircle}> Circle</div>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline} className='option' onClick={setMagToSquare}> Square</div>
+                        </div>
                     </div>
                     <div id='magsize'>
                         Magnifier Size
-                        <span className='option' onClick={decreaseMagSize}> Down</span>
-                        <span className='option' onClick={increaseMagSize}> Up</span>
+                        <div>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline} className='option' onClick={decreaseMagSize}> Down</div>
+                            <div onMouseEnter={toggleUnderline} onMouseLeave={toggleUnderline} className='option' onClick={increaseMagSize}> Up</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -510,7 +596,10 @@ const SearchImage = () => {
                 </div>
             </div>
             
-            
+            <div id='leaderboard'>
+                <h1>Leaderboards {lastTime}</h1>
+                <button id='submitscorebtn'>Submit Score</button>
+            </div>
 
         </div>
     )

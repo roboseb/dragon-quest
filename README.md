@@ -50,28 +50,34 @@ July 7th, 2022
 
     It really is an incredible feeling. Brute forcing your way through a math problem until the answer shows itself. Makes you feel big.
 
+July 8th, 2022
+
+    Woke up early, couldn't fall back asleep, but I get to be tired. Had some sort of nightmare, not sure of what. Won't get a ton done today, but at least I can get cracking at the last few things.
+
 
 ---To-Do---
 
 -Add firebase colour check
 -Add leaderboard
 DONE-Add item get message
--Add all items get message
+DONE-Add all items get message
 DONE-Add effects
 DONE-Add info
 DONE-Ability to change magnifier size or toggle it
 DONE-Mark found items.
--fix top left snail
+DONE-fix top left snail
+DONE-fix key
 -fix waiting for image load
 DONE-speed up slow item count update
 DONE-option for square magnifier
 -update title and favicon
 DONE-timer
 DONE-checked items opacity options
--fix magnifier
--adventure game mode where cursor changes if over an items
+DONE-fix magnifier
+CANCEL-adventure game mode where cursor changes if over an items
 DONE-Add key logic
--animate menu open/close
--custom font
+DONE-animate menu open/close
+DONE-custom font
 -finalize styling
 -center layout
+-use last found item for time/score
