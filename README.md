@@ -1,5 +1,28 @@
 #Dragon-Quest
 
+---Features---
+
+-A search and find that is not where's waldo
+
+-Stolen art from Dragon's Quest by Usborne
+
+-Individual item tracking
+
+-magnifying glass
+
+-options menu with;
+    -timer
+    -total items found
+    -leaderboard
+    -highlighting options
+    -magnifying options
+
+-leaderboard, upload your times and compare with others!
+
+-Custom styling that stays faithful to the original book
+
+-Fun and cute animations as always!
+
 ---Devlog---
 
 July 3rd, 2022
@@ -54,11 +77,25 @@ July 8th, 2022
 
     Woke up early, couldn't fall back asleep, but I get to be tired. Had some sort of nightmare, not sure of what. Won't get a ton done today, but at least I can get cracking at the last few things.
 
+July 14th, 2022
+
+    Been a while since I've had to take a long break like this. Wasn't a fun one though.
+
+    Saturday is my usual break day, and last saturday my mom had most of the family out the lake for a little picnic thing. I had a good time, mostly in the sun, but forgot to put on sunscreen for a large part of day, and it turns out that just slathering some several hours into a hot sunny day is not sufficient. Most of my exposed skin got burned pretty bad, but my shoulders in particular received second degree burns. The day after, I developed some pretty hideous blisters with some being the size of golf balls. I was more or less bedridden for half a week. Yesterday, those fuckers finally started to melt away from the lotion I was applying, and I literally would go lay down, feel the trickle of puss seeping down my torso, go wipe myself up, and then wait for this to happen again to rinse and repeat. Thanks to this, I was able to sleep properly for the first night in about five days. Just mild discomfort now, which is no big deal.
+
+    The last major thing I need to add to this site is a functioning leaderboard. I've already set up firebase, and was able to succesfully read/write some test info at that time. Seems like it shouldn't be all that different than localStorage, except for react useState. 
+
+    Sidenote about how score will be calculated. It seems pretty unlikely that anyone will actually find all 100 items seeing as close to zero people will play this, so the score uploaded to the leaderboards will be both your total items found and your time at the last item found. Then score can be sorted first by total items, and then subdivided by time. 
+
+    I dicked around with the score timer for over an hour so that it wouldn't tick up with the regular timer. Finally got that working. Then spent about twenty minutes start to finish to get a working scoreboard where you could submit times and then have it displayed on reload. Crazy shit. Firebase is great.
+
+    Leaderboard currently working great even with a custom nickname. Having a backend is the coolest fucking thing bro.
+
 
 ---To-Do---
 
--Add firebase colour check
--Add leaderboard
+CANCEL-Add firebase colour check
+DONE-Add leaderboard
 DONE-Add item get message
 DONE-Add all items get message
 DONE-Add effects
@@ -67,10 +104,10 @@ DONE-Ability to change magnifier size or toggle it
 DONE-Mark found items.
 DONE-fix top left snail
 DONE-fix key
--fix waiting for image load
+CANCEL-fix waiting for image load (getimagedata error timing)
 DONE-speed up slow item count update
 DONE-option for square magnifier
--update title and favicon
+DONE-update title and favicon
 DONE-timer
 DONE-checked items opacity options
 DONE-fix magnifier
@@ -78,6 +115,8 @@ CANCEL-adventure game mode where cursor changes if over an items
 DONE-Add key logic
 DONE-animate menu open/close
 DONE-custom font
--finalize styling
--center layout
--use last found item for time/score
+DONE-finalize styling
+CANCEL-center layout
+DONE-use last found item for time/score
+DONE-hint to find the key
+DONE-sort leaderboards

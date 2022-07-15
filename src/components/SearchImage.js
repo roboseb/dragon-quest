@@ -2,6 +2,7 @@ import shortsville from "../images/shortsvilleblank.png";
 import key from "../images/key.png";
 import landscape from "../images/landscape.png";
 import blankscroll from "../images/blankscroll.png";
+import boardscroll from "../images/boardscroll.png";
 
 import {useState, useEffect} from 'react';
 import FoundItems from "./FoundItems";
@@ -9,6 +10,8 @@ import FoundItems from "./FoundItems";
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from "firebase/firestore";
 import { collection, addDoc, getDocs, getDoc } from "firebase/firestore"; 
+
+import uniqid from "uniqid";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDS-E029FsBskE3NfT39CFstbq9yQHeczU",
@@ -42,7 +45,10 @@ const SearchImage = () => {
     const [magSize, setMagSize] = useState(200);
 
     const [foundAmount, setFoundAmount] = useState(0);
-    const [lastTime, setLastTime] = useState(null);
+    const [lastTime, setLastTime] = useState([0,0,0]);
+    const [lastTimeDisplay, setLastTimeDisplay] = useState(['00', '00', '00']);
+
+    const [allScores, setAllScores] = useState([]);
 
 
     const [itemArray, setItemArray] = useState([
@@ -217,29 +223,54 @@ const SearchImage = () => {
         //Start the timer.
         timerCycle();
 
-        async function firebaseTest()  {
-            try {
-                const docRef = await addDoc(collection(db, "users"), {
-                    first: "Cum",
-                    last: "Sock",
-                    born: 1815
-                });
-                console.log("Document written with ID: ", docRef.id);
-            } catch (e) {
-                console.error("Error adding document: ", e);
-            }
+        //Fetch the leaderboard score data from firebase.
+        fetchScores().then((response) => {
+            console.log(response);
 
-            try {
-                const querySnapshot = await getDocs(collection(db, "users"));
-                querySnapshot.forEach((doc) => {
-                    console.log(doc.data());
-                });
-            } catch (e) {
-                console.error(e);
-            }
+            let scores = response;
+
+            scores.sort((a, b) => (a.score < b.score) ? 1 : -1);
+
+            setAllScores(response);
+        });
+    }
+
+    //Write score data to firebase leaderboard.
+    async function addToLeaderboard(nick, score, time)  {
+        try {
+            const docRef = await addDoc(collection(db, "leaderboard"), {
+                nick: nick,
+                score: score,
+                time: time
+            });
+
+            const nickInput = document.getElementById('nickinput');
+            nickInput.value = 'Success!';
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
         }
 
-        //firebaseTest();
+
+    }
+
+    //Fetch all scores from the firebase db.
+    async function fetchScores() {
+        try {
+            let scores = [];
+
+            const querySnapshot = await getDocs(collection(db, "leaderboard"));
+            querySnapshot.forEach((doc) => {
+                //console.log(doc.data());
+                scores.push(doc.data());
+            });
+
+            //console.log(scores);
+
+            return scores;
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     //Check to update found items.
@@ -258,7 +289,6 @@ const SearchImage = () => {
             if (tempB === 100) {
                 alert('You got the key! Congrats!');
             }
-            
 
             //Add the highlighted key for the found item.
             addKey(tempB);
@@ -281,10 +311,18 @@ const SearchImage = () => {
             setItemArray(tempArray);
             setFoundAmount(foundAmount => foundAmount + 1);
 
-            setLastTime(timer);
-            console.log(lastTime);
+            let tempTimer = timer;
+
+            setLastTime(tempTimer.slice());
         }
     }
+
+    //Update last time display on item found.
+    useEffect(() => {
+        if (lastTime !== [0,0,0]) {
+            setLastTimeDisplay(convertTime(lastTime));
+        }
+    }, [lastTime]);
 
     const animateFoundItem = (item) => {
         const domItem = document.getElementById(`${item}count`);
@@ -356,6 +394,24 @@ const SearchImage = () => {
 
         let tempTimer = timer;
         tempTimer[2] += 1;
+        setTimer(tempTimer);
+
+        //Convert time units into leading zero format.
+        let tempTimerDisplay = convertTime(tempTimer);
+
+        //Update the timer display.
+        setTimerDisplay(tempTimerDisplay);
+
+        //Force update on timer element.
+        setCounter(counter => counter + 1);
+
+        setTimeout(timerCycle, 1000);
+    }
+
+    //Convert simple timer array into a timer with leading zeros.
+    const convertTime = (time) => {
+
+        let tempTimer = time;
 
         //Condense sets of 60 seconds or minutes into minutes or hours.
         if (tempTimer[2] >= 60) {
@@ -368,9 +424,7 @@ const SearchImage = () => {
             tempTimer[0] += 1;
         }
 
-        setTimer(tempTimer);
-
-        let tempTimerDisplay = timerDisplay;
+        let tempTimerDisplay = [];
 
         //Add leading zero to single digit time counts.
         if (tempTimer[2] < 10 || tempTimer[2] === 0) {
@@ -379,7 +433,7 @@ const SearchImage = () => {
             tempTimerDisplay[2] = tempTimer[2];
         }
 
-        if (tempTimer[1] < 10 || tempTimer[1] === 0) {
+        if (tempTimer[1] < 10 || tempTimer[1] === 1230) {
             tempTimerDisplay[1] = '0' + tempTimer[1];
         } else {
             tempTimerDisplay[1] = tempTimer[1];
@@ -391,12 +445,7 @@ const SearchImage = () => {
             tempTimerDisplay[0] = tempTimer[0];
         }
 
-        setTimerDisplay(tempTimerDisplay);
-
-        //Force update on timer element.
-        setCounter(counter => counter + 1);
-
-        setTimeout(timerCycle, 1000);
+        return tempTimerDisplay;
     }
 
     const toggleHighlight = () => {
@@ -491,6 +540,28 @@ const SearchImage = () => {
         }
     }, [foundAmount]);
 
+    //Add score to leaderboard.
+    const submitScore = () => {
+        const nickInput = document.getElementById('nickinput');
+        if (nickInput.value.length !== 3) {
+            alert('Nickname must be 3 characters long.');
+            return;
+        }
+
+        addToLeaderboard(nickInput.value, foundAmount, lastTime);
+    }
+
+    //Make the nickname input always uppercase.
+    const upperify = () => {
+        const nickInput = document.getElementById('nickinput');
+        nickInput.value = nickInput.value.toUpperCase();
+    }
+
+    const toggleLeaderboard = () => {
+        const leaderboard = document.getElementById('leaderboard');
+        leaderboard.classList.toggle('shown');
+    }
+
     return (
         <div id='searchimgbox'>
             <canvas id='keybox'></canvas>
@@ -530,7 +601,7 @@ const SearchImage = () => {
                 </div>
 
                 <div id='timebox'>
-                    <div id='score'>{foundAmount}/100</div>
+                    <div id='score'>{foundAmount}/95</div>
                     <div id='currenttime'>{}{timerDisplay[0]}:{timerDisplay[1]}:{timerDisplay[2]}</div>
                     <button id='leaderboardsbtn'>{">:"}Open Leaderboard{":<"}</button>
                 </div>
@@ -582,6 +653,54 @@ const SearchImage = () => {
                         </div>
                     </div>
                 </div>
+
+                <div id='leaderboard'>
+                    <img src={boardscroll} alt=""></img>
+                    <button
+                        className='option'
+                        onClick={toggleLeaderboard}
+                        onMouseEnter={toggleUnderline}
+                        onMouseLeave={toggleUnderline}
+                    >{">:"}Toggle Leaderboard{":<"}</button>
+                    <h1>Leaderboards</h1>
+
+                    <div id='scoreinfobox'>
+                        <h3>Current Score</h3>
+                        <div>Items: {foundAmount}/95</div>
+                        <div>Time: {lastTimeDisplay[0]}:{lastTimeDisplay[1]}:{lastTimeDisplay[2]}</div>
+                    </div>
+
+                    <div id='submitbox'>
+                        <input
+                            id='nickinput'
+                            type='text'
+                            maxLength='3'
+                            placeholder='nickname'
+                            onInput={upperify}
+                        ></input>
+                        <button
+                            id='submitscorebtn'
+                            onClick={submitScore}
+                            className='option'
+                            onMouseEnter={toggleUnderline}
+                            onMouseLeave={toggleUnderline}
+                        >Submit Score</button>
+                    </div>
+
+                    <div id='allscoresbox'>
+                        {allScores.map((item, index) => {
+                            if (item !== undefined) {
+                                return <div
+                                    key={uniqid()}
+                                    id='scoreitem'
+                                >{item.nick} {convertTime(item.time)[0]}:{convertTime(item.time)[1]}:{convertTime(item.time)[2]} {item.score}/95
+                                </div>
+                            }
+                        })}
+                    </div>
+                    <div id='keyhint'>Have you found the key yet?</div>
+
+                </div>
             </div>
             
             <div 
@@ -596,13 +715,11 @@ const SearchImage = () => {
                 </div>
             </div>
             
-            <div id='leaderboard'>
-                <h1>Leaderboards {lastTime}</h1>
-                <button id='submitscorebtn'>Submit Score</button>
-            </div>
+            
 
         </div>
     )
 }
 
 export default SearchImage;
+

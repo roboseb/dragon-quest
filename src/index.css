@@ -14,6 +14,30 @@ body {
   font-family: typewriter, 'Times New Roman', Times, serif;
 }
 
+#app {
+    height: 100vh;
+    width: 100vw;
+    background-image: url("images/paper.png");
+    display: flex;
+}
+
+#app>#blurb {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    width: 500px;
+    height: 100vh;
+    overflow-y: scroll;
+    font-size: 1rem;
+
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+#blurb::-webkit-scrollbar {
+    display: none;
+  }
+
 #searchimgbox {
     position: relative;
 }
@@ -26,7 +50,8 @@ body {
     top: 0;
     left: 0;
     position: absolute;
-
+    height: 100vh;
+    box-shadow: 20px 0px 20px rgba(0, 0, 0, 0.63);
 }
 
 #magnifiedimg {
@@ -118,6 +143,8 @@ img {
     background-color: transparent;
 
     pointer-events: none;
+
+    overflow-y: hidden;
 }
 
 .countbox {
@@ -366,13 +393,14 @@ img {
 #menu {
     position: absolute;
     top: 0;
-    left: 24px;
+    left: -1px;
     height: 0vh;
     width: 250px;
+    padding: 0 25px;
     display: flex;
     flex-direction: column;
     gap: 30px;
-    transition: all 0.4s;
+    transition: all 0.6s;
     overflow: hidden;
 }
 
@@ -480,13 +508,91 @@ img {
 }
 
 #leaderboard {
-    position: fixed;
+    position: absolute !important;
+    padding: 0 !important;
     top: 50vh;
-    left: 50vw;
-    transform: translate(-50%, -50%);
+    left: 1px;
+    width: 300px;
+    height: 40px;
     color: black;
     z-index: 4;
 
-    background-color: rgba(255, 255, 255, 0.424);
-    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.479));
+    transition: all 0.6s;
+
+    overflow: hidden;
+}
+
+#leaderboard.shown {
+    height: 400px;
+}
+
+#leaderboard>h1 {
+    margin: 0;
+}
+
+#leaderboard h3 {
+    margin: 0;
+}
+
+#leaderboard button {
+    font-family: typewriter, 'Times New Roman', Times, serif;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#leaderboard>button {
+    margin-top: 10px;
+    
+}
+
+#leaderboard>img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 300px;
+    filter: brightness(80%) contrast(160%);
+    
+    
+}
+
+#leaderboard input {
+    width: 5rem;
+    outline: none;
+    border: none;
+    border-bottom: 2px solid black;
+    background-color: transparent;
+}
+
+#leaderboard input::placeholder {
+    color: rgba(0, 0, 0, 0.678);
+    font-family: typewriter, 'Times New Roman', Times, serif;
+}
+
+#allscoresbox {
+    height: 100px;
+    width: 70%;
+    overflow-y: scroll;
+}
+
+#submitbox>button {
+    padding: 2px;
+    font-weight: bolder;
+}
+
+#keyhint {
+    filter: opacity(0.1);
+    transition: all 0.3s;
+    cursor: default;
+}
+
+#keyhint:hover {
+    filter: opacity(0.5);
 }
